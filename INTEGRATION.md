@@ -15,7 +15,7 @@
 ## Clone and run
 
 Keep the repositories as siblings. Node.js 24+ is needed for the API's built-in SQLite support.
-The frontend and backend have no npm dependencies to install.
+The backend pins the official Stellar SDK. Run `npm ci` in the backend before enabling testnet verification.
 
 ```bash
 mkdir muxreceipt-workspace
@@ -27,7 +27,9 @@ git clone https://github.com/meridian-evidence-lab/muxreceipt-review.git
 git clone https://github.com/meridian-evidence-lab/muxreceipt-frontend.git
 git clone https://github.com/meridian-evidence-lab/muxreceipt-backend.git
 git clone https://github.com/meridian-evidence-lab/muxreceipt-contracts.git
-cd muxreceipt-frontend
+cd muxreceipt-backend
+npm ci
+cd ../muxreceipt-frontend
 npm run dev
 ```
 
@@ -77,8 +79,7 @@ identity. No keys are shipped. See ABI.json and the contract README for methods 
 
 `muxreceipt-backend/openapi.json` is the initial API contract. Normalized input follows the
 existing core sample. GET /api/network optionally checks an operator-configured RPC_URL with
-getNetwork and getHealth. The API does not yet decode or ingest raw Stellar XDR, verify provider
-coverage, or read contract state. The adapter interfaces and unsigned proposal output make those
+getNetwork and getHealth. The API supports pinned testnet registry read-back. General raw-event ingestion and independent provider coverage verification remain open. The adapter interfaces and unsigned proposal output make those
 next contributions explicit without treating unverified inputs as chain evidence.
 
 ## Validation
@@ -92,5 +93,9 @@ Each repository's CI checks out the sibling dependencies it actually needs.
 
 - Complete the prioritized BACKLOG.md issues with acceptance tests.
 - Pin cross-repository commit SHAs for a release; development CI currently tracks sibling main.
-- Add verified SDK normalization, contract read-back and wallet signing for a testnet pilot.
+- Extend the bounded testnet pilot with ingestion, a verification UI and external wallet signing.
 - Review security, privacy, storage archival, resource usage and migration behavior.
+
+## Registry read-back
+
+The backend now supports POST /api/contracts/verify using the official SDK and configured testnet registry/WASM pins. This is a TLS RPC-reported ledger read, not an independent consensus proof. See TESTNET.md. The frontend verification interface and general-purpose XDR ingestion remain separate open issues.

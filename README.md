@@ -11,12 +11,13 @@ Read [INTEGRATION.md](INTEGRATION.md) for complete clone commands, the seven-rep
 local run instructions, API behavior and contract boundaries.
 
 ```bash
+npm ci
 npm test
 npm start
 ```
 
 Node.js 24+ is required. Clone the sibling core, review, contracts and backend repositories
-as described in the integration guide. There is no npm dependency installation step.
+as described in the integration guide. Run `npm ci` in this backend before using registry verification. The official Stellar SDK is pinned with package-lock.json.
 
 ## Contributing
 
@@ -24,3 +25,7 @@ as described in the integration guide. There is no npm dependency installation s
 [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 Report vulnerabilities through the private process in [SECURITY.md](SECURITY.md).
 Source is MIT-licensed. No Drips approval, security audit, or mainnet deployment is claimed.
+
+## Testnet registry verification
+
+POST `/api/contracts/verify` reads the configured testnet registry and checks its network, pinned WASM hash and exact stored commitments. It does not sign, simulate a write, or submit transactions. See TESTNET.md for deployment evidence and reproducible commands. Missing/archived records are not marked verified.

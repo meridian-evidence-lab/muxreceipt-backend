@@ -1,0 +1,16 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import * as sdk from '@stellar/stellar-sdk';import {verifyRegistry,TESTNET_PASSPHRASE} from './chain.mjs';
+const contractId=sdk.StrKey.encodeContract(Buffer.alloc(32,1));const publisher=sdk.Keypair.random().publicKey();
+const config={rpcUrl:'https://rpc.example.invalid',contractId,wasmHash:'a'.repeat(64)};
+function fixtures(project){const mux=project==='muxreceipt';const input=mux?{scope:'b'.repeat(64),revision:1,expectedCommitment:'c'.repeat(64)}:{publisher,reportDigest:'b'.repeat(64),expectedInputDigest:'c'.repeat(64),expectedScopeDigest:'d'.repeat(64)};
+ const record=mux?{revision:1,commitment:Buffer.alloc(32,0xcc),recorded_ledger:100}:{report_digest:Buffer.alloc(32,0xbb),input_digest:Buffer.alloc(32,0xcc),scope_digest:Buffer.alloc(32,0xdd),recorded_ledger:100};
+ const client={getNetwork:async()=>({passphrase:TESTNET_PASSPHRASE}),getContractInstance:async()=>({executable:sdk.xdr.ContractExecutable.contractExecutableWasm(Buffer.alloc(32,0xaa))}),getContractData:async(id,key)=>({val:{type:'contractData',value:{contract:new sdk.Address(id).toScAddress(),key,val:sdk.xdr.ScVal.scvMap(Object.keys(record).sort().map(k=>new sdk.xdr.ScMapEntry({key:sdk.xdr.ScVal.scvSymbol(k),val:typeof record[k]==='number'?sdk.xdr.ScVal.scvU32(record[k]):sdk.nativeToScVal(record[k])})))}},lastModifiedLedgerSeq:100,liveUntilLedgerSeq:200})};return {input,record,client};}
+for(const project of ['muxreceipt','ledgerorder']){
+ test(project+': reads exact key and verifies record',async()=>{const {input,client}=fixtures(project);assert.equal((await verifyRegistry(project,input,config,{client})).verified,true);});
+ test(project+': wrong network is refused before contract read',async()=>{const {input,client}=fixtures(project);let read=false;client.getNetwork=async()=>({passphrase:'Public Global Stellar Network ; September 2015'});client.getContractData=async()=>{read=true};await assert.rejects(verifyRegistry(project,input,config,{client}),/not Stellar testnet/);assert.equal(read,false);});
+ test(project+': pinned executable mismatch is refused',async()=>{const {input,client}=fixtures(project);await assert.rejects(verifyRegistry(project,input,{...config,wasmHash:'f'.repeat(64)},{client}),/WASM/);});
+ test(project+': unexpected commitment is refused',async()=>{const {input,client}=fixtures(project);input[project==='muxreceipt'?'expectedCommitment':'expectedInputDigest']='e'.repeat(64);await assert.rejects(verifyRegistry(project,input,config,{client}),/does not match/);});
+ test(project+': unavailable record is not marked verified',async()=>{const {input,client}=fixtures(project);client.getContractData=async()=>{throw {code:404}};await assert.rejects(verifyRegistry(project,input,config,{client}),/missing or archived/);});
+ test(project+': malformed digest fails before RPC',async()=>{const {input,client}=fixtures(project);input[project==='muxreceipt'?'scope':'reportDigest']='bad';await assert.rejects(verifyRegistry(project,input,config,{client}),/32-byte/);});
+}
+test('configuration and plaintext endpoints are refused',async()=>{await assert.rejects(verifyRegistry('muxreceipt',{},null),/Configure/);await assert.rejects(verifyRegistry('muxreceipt',{}, {...config,rpcUrl:'http://rpc.example.invalid'}),/HTTPS/);});
