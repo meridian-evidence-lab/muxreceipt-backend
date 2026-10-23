@@ -1,0 +1,79 @@
+{
+  "kind": "public-testnet-demo",
+  "network": {
+    "friendbotUrl": "https://friendbot.stellar.org/",
+    "passphrase": "Test SDF Network ; September 2015",
+    "protocolVersion": 29
+  },
+  "sdk": "17.3.0",
+  "sourceAccount": "GBS32UOHMTGPFRKEKYNUQNWKD6TO2OVFM6PXKDGZAFDCWNBN6PR7GQFI",
+  "config": {
+    "rpcUrl": "https://soroban-testnet.stellar.org",
+    "contractId": "CALJJITKSXKSCBSMOKHJGH5L7PAGE3DOCVLZA36S4KNY4RTA3FJAS3PE",
+    "wasmHash": "444a11b403446363f43706155f89de68ab8c903705a739b94e4089d2f6d960a2"
+  },
+  "verificationInput": {
+    "scope": "fce47b67555127803fa98b926d051225686ea9043734548877e9fa6cf4350181",
+    "revision": 1,
+    "expectedCommitment": "161e0398f1c2d8573401fa173d3c34be58c6217392b39bb50fc2f7404fd8ebd2"
+  },
+  "verification": {
+    "verified": true,
+    "project": "muxreceipt",
+    "network": "testnet",
+    "contractId": "CALJJITKSXKSCBSMOKHJGH5L7PAGE3DOCVLZA36S4KNY4RTA3FJAS3PE",
+    "wasmHash": "444a11b403446363f43706155f89de68ab8c903705a739b94e4089d2f6d960a2",
+    "record": {
+      "revision": 1,
+      "commitment": "161e0398f1c2d8573401fa173d3c34be58c6217392b39bb50fc2f7404fd8ebd2",
+      "recorded_ledger": 5346491
+    },
+    "lastModifiedLedger": 5346491,
+    "liveUntilLedger": 5467450,
+    "checkedAt": "2026-10-23T11:47:24.463Z",
+    "sdk": "17.3.0",
+    "trust": "TLS RPC-reported ledger entry; not an independently verified consensus proof"
+  },
+  "deployment": {
+    "hash": "aa4b51a5cf9d7caedd33a93567d9f486127dd285b0546982ea6017363c4ab3d6",
+    "ledger": 5346470
+  },
+  "write": {
+    "hash": "fc295e4cb3213b465417871003434a9ec34e4c3a14bf14ce4ec3b5b080b2de0b",
+    "ledger": 5346491,
+    "applicationOrder": 6
+  },
+  "syntheticMappingProof": {
+    "mapping": {
+      "network": "Test SDF Network ; September 2015",
+      "contract": "CALJJITKSXKSCBSMOKHJGH5L7PAGE3DOCVLZA36S4KNY4RTA3FJAS3PE",
+      "asset": "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC",
+      "muxedId": "18446744073709551615",
+      "tenant": "public-synthetic-demo-customer",
+      "fromLedger": 5346470,
+      "untilLedger": null
+    },
+    "salt": "1dc8b99cfe5cfb05aebfb5bfd3c068a59a9e0435d13865047bf79a0a6cbf14b2"
+  },
+  "notice": "Synthetic customer mapping commitment only. No customer payment or real funds are represented.",
+  "httpVerification": {
+    "status": 200,
+    "body": {
+      "verified": true,
+      "project": "muxreceipt",
+      "network": "testnet",
+      "contractId": "CALJJITKSXKSCBSMOKHJGH5L7PAGE3DOCVLZA36S4KNY4RTA3FJAS3PE",
+      "wasmHash": "444a11b403446363f43706155f89de68ab8c903705a739b94e4089d2f6d960a2",
+      "record": {
+        "revision": 1,
+        "commitment": "161e0398f1c2d8573401fa173d3c34be58c6217392b39bb50fc2f7404fd8ebd2",
+        "recorded_ledger": 5346491
+      },
+      "lastModifiedLedger": 5346491,
+      "liveUntilLedger": 5467450,
+      "checkedAt": "2026-10-23T11:48:06.055Z",
+      "sdk": "17.3.0",
+      "trust": "TLS RPC-reported ledger entry; not an independently verified consensus proof"
+    }
+  }
+}

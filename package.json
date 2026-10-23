@@ -10,7 +10,10 @@
   },
   "scripts": {
     "start": "node --env-file-if-exists=.env server.mjs",
-    "test": "node --test test.mjs",
+    "test": "node --test test.mjs chain.test.mjs",
     "demo": "node --test test.mjs"
+  },
+  "dependencies": {
+    "@stellar/stellar-sdk": "17.3.0"
   }
 }

@@ -24,3 +24,7 @@ optional API_TOKEN, and bound JSON imports to 1 MiB. No web-accessible multi-ten
 is present. SQLite inputs may contain sensitive metadata; keep data/ and .env out of Git.
 Production deployments need authenticated tenant isolation, retention/privacy policy, migrations,
 rate limits, robust worker orchestration, and independent review.
+
+## Pinned testnet read-back
+
+POST /api/contracts/verify reads registry state through the official SDK, verifies testnet identity and pinned WASM, and compares the requested storage record. RPC transport is trusted; no consensus-proof verification or transaction signing is performed. See TESTNET.md for reproducible public evidence.

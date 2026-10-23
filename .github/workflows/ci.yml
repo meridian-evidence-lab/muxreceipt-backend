@@ -27,5 +27,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
+      - run: npm ci
+        working-directory: muxreceipt-backend
       - run: npm test
         working-directory: muxreceipt-backend

@@ -1,3 +1,4 @@
+import {verifyRegistry} from './chain.mjs';
 import {createServer} from 'node:http';
 import {DatabaseSync} from 'node:sqlite';
 import {randomUUID} from 'node:crypto';
@@ -11,7 +12,7 @@ const muxreceipt='muxreceipt';
 function reply(res,status,value,type='application/json'){res.writeHead(status,{'content-type':type+'; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff','content-security-policy':"default-src 'none'; style-src 'unsafe-inline'"});res.end(type==='application/json'?JSON.stringify(value):value);}
 async function body(req){if(!String(req.headers['content-type']).startsWith('application/json'))throw Object.assign(new Error('Use application/json'),{status:415});let n=0,parts=[];for await(const chunk of req){n+=chunk.length;if(n>1048576)throw Object.assign(new Error('Input exceeds 1 MiB'),{status:413});parts.push(chunk);}try{return JSON.parse(Buffer.concat(parts).toString());}catch{throw Object.assign(new Error('Invalid JSON'),{status:400});}}
 function bounded(input){if(muxreceipt==='muxreceipt'){if(!Array.isArray(input.events)||input.events.length>10000||!Array.isArray(input.mappings)||input.mappings.length>512)throw new Error('Expected events <= 10000 and mappings <= 512');if(input.events.some(e=>!e||typeof e!=='object'||Array.isArray(e)))throw new Error('Events must be objects');}else{for(const x of [input.left,input.right])if(!x||!Array.isArray(x.events)||x.events.length>10000||!Array.isArray(x.ranges)||x.ranges.length>10000)throw new Error('Expected bounded left/right exports');}}
-export function createApp({database=':memory:',token='',rpcUrl='',allowedOrigins=['http://127.0.0.1:4310','http://localhost:4310']}={}){
+export function createApp({database=':memory:',token='',rpcUrl='',registry=null,registryVerifier=verifyRegistry,allowedOrigins=['http://127.0.0.1:4310','http://localhost:4310']}={}){
  if(database!==':memory:')mkdirSync(dirname(database),{recursive:true});const db=new DatabaseSync(database);
  db.exec('PRAGMA journal_mode=WAL; CREATE TABLE IF NOT EXISTS audits(id TEXT PRIMARY KEY,created_at TEXT NOT NULL,input TEXT NOT NULL,report TEXT NOT NULL); CREATE TABLE IF NOT EXISTS settings(key TEXT PRIMARY KEY,value TEXT NOT NULL);');
  const get=id=>{const row=db.prepare('SELECT * FROM audits WHERE id=?').get(id);return row?{id:row.id,createdAt:row.created_at,input:JSON.parse(row.input),report:JSON.parse(row.report)}:null;};
@@ -35,7 +36,8 @@ export function createApp({database=':memory:',token='',rpcUrl='',allowedOrigins
     const report=muxreceipt==='muxreceipt'?engine.audit(input):engine.compare(input.left,input.right);report.provenance={inputDigest:digest(input),coreVersion:'0.1.0',normalization:'caller-supplied'};
     const id=randomUUID(),createdAt=new Date().toISOString();db.prepare('INSERT INTO audits VALUES(?,?,?,?)').run(id,createdAt,JSON.stringify(input),JSON.stringify(report));return reply(res,201,{id,createdAt,report});
    }
-   if(req.method==='POST'&&path==='/api/contracts/proposals'){
+   if(req.method==='POST'&&path==='/api/contracts/verify'){const input=await body(req);return reply(res,200,await registryVerifier('muxreceipt',input,registry));}
+    if(req.method==='POST'&&path==='/api/contracts/proposals'){
     const x=await body(req);let proposal;
     if(muxreceipt==='muxreceipt'){engine.audit({schemaVersion:1,mappings:[x.mapping],events:[]});proposal=mappingProposal(x.mapping,x.expectedRevision,x.salt);}
     else{const stored=get(x.auditId);if(!stored)return reply(res,404,{error:'Audit not found'});proposal=anchorProposal(stored.report,stored.input,x.publisher);}
