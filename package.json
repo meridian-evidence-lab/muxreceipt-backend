@@ -1,0 +1,16 @@
+{
+  "name": "@meridian-evidence-lab/muxreceipt-backend",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "description": "Local-first muxreceipt API with SQLite persistence, audit execution, report exports and contract proposal integration.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server.mjs",
+    "test": "node --test test.mjs",
+    "demo": "node --test test.mjs"
+  }
+}
